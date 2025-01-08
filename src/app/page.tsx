@@ -1,74 +1,70 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+
+interface Creation {
+  id: number;
+  imageUrl: string;
+  likes: number;
+  title?: string;
+}
 
 export default function Home() {
+  const [creations] = useState<Creation[]>([
+    { id: 1, imageUrl: '/images/portrait.jpg', likes: 8 },
+    { id: 2, imageUrl: '/images/moonlight.jpg', likes: 5 },
+    { id: 3, imageUrl: '/images/building.jpg', likes: 3 },
+    { id: 4, imageUrl: '/images/computer.jpg', likes: 2 },
+    { id: 5, imageUrl: '/images/forest.jpg', likes: 1 },
+    { id: 6, imageUrl: '/images/beach.jpg', likes: 16 },
+    { id: 7, imageUrl: '/images/sports.jpg', likes: 4 },
+    { id: 8, imageUrl: '/images/crown.jpg', likes: 3 },
+    { id: 9, imageUrl: '/images/couple.jpg', likes: 6 },
+    { id: 10, imageUrl: '/images/frame.jpg', likes: 2 },
+    { id: 11, imageUrl: '/images/cyberpunk.jpg', likes: 7 },
+  ]);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <Link
-            href="/editor"
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-          >
-            文字多边形排版工具
-          </Link>
+    <div className="min-h-screen bg-gray-100">
+      {/* 侧边栏 */}
+      <div className="fixed left-0 top-0 h-full w-16 bg-white shadow-lg flex flex-col items-center py-4 space-y-6">
+        <div className="w-8 h-8">
+          <Image src="/logo.svg" alt="Logo" width={32} height={32} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <Link href="/" className="p-2 bg-gray-100 rounded-lg">
+          <Image src="/home.svg" alt="Home" width={24} height={24} />
+        </Link>
+        <Link href="/creations" className="p-2">
+          <Image src="/creations.svg" alt="Creations" width={24} height={24} />
+        </Link>
+      </div>
+
+      {/* 主内容区 */}
+      <div className="ml-16 p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {creations.map((creation) => (
+            <div
+              key={creation.id}
+              className="relative group overflow-hidden rounded-lg shadow-lg bg-white"
+            >
+              <div className="aspect-w-1 aspect-h-1">
+                <Image
+                  src={creation.imageUrl}
+                  alt={creation.title || `Creation ${creation.id}`}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+              </div>
+              <div className="absolute bottom-3 right-3 bg-black/50 px-2 py-1 rounded-full flex items-center space-x-1">
+                <Image src="/heart.svg" alt="Likes" width={16} height={16} className="invert" />
+                <span className="text-white text-sm">{creation.likes}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
