@@ -58,12 +58,22 @@ export default function Editor() {
       // 绘制背景图片（使用显示尺寸）
       ctx.drawImage(img, 0, 0, img.width, img.height);
       
-      // 如果有保存的坐标，加载它们
-      const savedPoints = localStorage.getItem('polygonPoints');
-      if (savedPoints) {
-        const parsedPoints = JSON.parse(savedPoints);
-        setPoints(parsedPoints);
-        drawPoints();
+      // 如果有保存的状态，加载它们
+      const savedState = localStorage.getItem('editorState');
+      if (savedState) {
+        const data = JSON.parse(savedState);
+        setPoints(data.points);
+        setText(data.text);
+        setFontSize(data.fontSize);
+        setLetterSpacing(data.letterSpacing);
+        setLineHeight(data.lineHeight);
+        setTextColor(data.textColor);
+        setTextDirection(data.textDirection);
+        setIsCompleted(true);
+        setTimeout(() => {
+          drawPoints();
+          fillTextInPolygon();
+        }, 100);
       }
     };
   }, []);
@@ -334,13 +344,17 @@ export default function Editor() {
     setPoints([]);
     setIsDrawing(false);
     setIsCompleted(false);
+    setIsNearFirstPoint(false);
     setText('');  // 清除文字
-    // 清除保存的坐标
-    localStorage.removeItem('polygonPoints');
+    // 清除保存的状态
     localStorage.removeItem('editorState');
   };
 
   const handleSave = () => {
+    if (!isCompleted) {
+      alert('请先完成多边形绘制！');
+      return;
+    }
     const data = {
       points,
       text,
@@ -373,6 +387,13 @@ export default function Editor() {
     }
   };
 
+  const handleEdit = () => {
+    setIsCompleted(false);
+    setIsDrawing(false);
+    setIsNearFirstPoint(false);
+    drawPoints();
+  };
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">文字多边形排版工具</h1>
@@ -395,6 +416,14 @@ export default function Editor() {
         >
           加载状态
         </button>
+        {isCompleted && (
+          <button
+            onClick={handleEdit}
+            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+          >
+            编辑多边形
+          </button>
+        )}
       </div>
       <div className="flex flex-wrap gap-8">
         <div className="bg-white rounded-lg shadow-md p-4">
