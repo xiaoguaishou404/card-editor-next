@@ -149,12 +149,28 @@ export default function Editor() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    // 先绘制新点
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 如果已经有其他点，绘制连线
+    if (points.length > 0) {
+      ctx.beginPath();
+      ctx.moveTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+
+    // 更新点集合
     setPoints([...points, {x, y}]);
-    drawPoints();
   };
 
   const handleComplete = () => {
