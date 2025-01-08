@@ -258,7 +258,10 @@ export default function Editor() {
       setIsCompleted(true);
       setIsDrawing(false);
       drawPoints();
-      fillTextInPolygon();
+      // 如果已经有文字，立即填充
+      if (text) {
+        fillTextInPolygon();
+      }
       return;
     }
 
@@ -338,12 +341,6 @@ export default function Editor() {
           清除画布
         </button>
         <button
-          onClick={handleComplete}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          完成绘制
-        </button>
-        <button
           onClick={handleSave}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
@@ -371,7 +368,13 @@ export default function Editor() {
         <div className="bg-white rounded-lg shadow-md p-4 flex-1">
           <textarea
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              if (isCompleted) {
+                drawPoints();
+                fillTextInPolygon();
+              }
+            }}
             placeholder="请输入要排版的文字"
             className="w-full h-32 p-2 mb-4 border border-gray-300 rounded resize-none"
           />
