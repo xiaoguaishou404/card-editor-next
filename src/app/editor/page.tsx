@@ -231,7 +231,7 @@ export default function Editor() {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // 如果靠近第一个点，绘制一个特殊的提示圆圈
+      // 如果靠近第一个点且有足够的点，绘制一个特殊的提示圆圈
       if (isNear && points.length > 2) {
         ctx.beginPath();
         ctx.arc(points[0].x, points[0].y, 8, 0, Math.PI * 2);
@@ -262,6 +262,17 @@ export default function Editor() {
       if (text) {
         fillTextInPolygon();
       }
+      // 保存当前状态
+      const data = {
+        points,
+        text,
+        fontSize,
+        letterSpacing,
+        lineHeight,
+        textColor,
+        textDirection
+      };
+      localStorage.setItem('editorState', JSON.stringify(data));
       return;
     }
 
@@ -270,31 +281,22 @@ export default function Editor() {
     localStorage.setItem('polygonPoints', JSON.stringify(newPoints));
   };
 
-  const handleComplete = () => {
-    if (points.length < 3) {
-      alert('请至少绘制三个点来形成多边形！');
-      return;
-    }
-
-    setIsCompleted(true);
-    setIsDrawing(false);
-    drawPoints();
-    fillTextInPolygon();
-  };
-
   const handleClear = () => {
     const canvas = canvasRef.current;
     if (!canvas || !backgroundImage) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, 0);
+    const dpr = window.devicePixelRatio || 1;
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width / dpr, canvas.height / dpr);
     setPoints([]);
     setIsDrawing(false);
     setIsCompleted(false);
+    setText('');  // 清除文字
     // 清除保存的坐标
     localStorage.removeItem('polygonPoints');
+    localStorage.removeItem('editorState');
   };
 
   const handleSave = () => {
