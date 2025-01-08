@@ -92,26 +92,31 @@ export default function Editor() {
     ctx.drawImage(backgroundImage, 0, 0, canvas.width / dpr, canvas.height / dpr);
 
     if (points.length > 0) {
+      // 绘制多边形路径
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
 
+      // 绘制所有点之间的连线
       for (let i = 1; i < points.length; i++) {
         ctx.lineTo(points[i].x, points[i].y);
       }
 
+      // 如果多边形已完成，连接最后一个点和第一个点
       if (isCompleted) {
-        ctx.closePath();
+        ctx.lineTo(points[0].x, points[0].y);
       }
 
+      // 设置线条样式
       ctx.strokeStyle = '#333';
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // 绘制顶点
-      points.forEach(point => {
+      // 绘制所有顶点
+      points.forEach((point, index) => {
         ctx.beginPath();
         ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = '#333';
+        // 第一个点使用不同的颜色
+        ctx.fillStyle = index === 0 ? '#4CAF50' : '#333';
         ctx.fill();
       });
     }
@@ -219,26 +224,36 @@ export default function Editor() {
     setIsNearFirstPoint(isNear);
 
     // 实时绘制预览线
-    drawPoints();
-    if (points.length > 0) {
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
+    // 重新绘制所有内容
+    drawPoints();
+
+    // 绘制当前移动点到最后一个点的连线
+    ctx.beginPath();
+    ctx.moveTo(points[points.length - 1].x, points[points.length - 1].y);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 如果靠近第一个点且有足够的点，绘制提示
+    if (isNear && points.length > 2) {
+      // 预览最后一个点到第一个点的连线
       ctx.beginPath();
       ctx.moveTo(points[points.length - 1].x, points[points.length - 1].y);
-      ctx.lineTo(x, y);
-      ctx.strokeStyle = '#333';
+      ctx.lineTo(points[0].x, points[0].y);
+      ctx.strokeStyle = '#4CAF50';
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // 如果靠近第一个点且有足够的点，绘制一个特殊的提示圆圈
-      if (isNear && points.length > 2) {
-        ctx.beginPath();
-        ctx.arc(points[0].x, points[0].y, 8, 0, Math.PI * 2);
-        ctx.strokeStyle = '#4CAF50';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
+      // 绘制第一个点的高亮效果
+      ctx.beginPath();
+      ctx.arc(points[0].x, points[0].y, 8, 0, Math.PI * 2);
+      ctx.strokeStyle = '#4CAF50';
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
   };
 
@@ -257,11 +272,37 @@ export default function Editor() {
     if (points.length >= 3 && isNearFirstPoint) {
       setIsCompleted(true);
       setIsDrawing(false);
-      drawPoints();
+      
+      // 使用当前点集合绘制完整的多边形（包括封闭线）
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+        ctx.drawImage(backgroundImage!, 0, 0, canvas.width / dpr, canvas.height / dpr);
+        
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.lineTo(points[0].x, points[0].y);
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // 重新绘制所有顶点
+        points.forEach((point, index) => {
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = index === 0 ? '#4CAF50' : '#333';
+          ctx.fill();
+        });
+      }
+
       // 如果已经有文字，立即填充
       if (text) {
         fillTextInPolygon();
       }
+
       // 保存当前状态
       const data = {
         points,
