@@ -34,16 +34,28 @@ export default function Editor() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // 获取设备像素比
+    const dpr = window.devicePixelRatio || 1;
+    
     // 加载背景图片
     const img = new window.Image();
     img.src = '/template.png';
     img.onload = () => {
       setBackgroundImage(img);
-      // 调整画布大小以适应图片
-      canvas.width = img.width;
-      canvas.height = img.height;
-      // 绘制背景图片
-      ctx.drawImage(img, 0, 0);
+      
+      // 设置画布的实际尺寸（考虑设备像素比）
+      canvas.width = img.width * dpr;
+      canvas.height = img.height * dpr;
+      
+      // 设置画布的显示尺寸
+      canvas.style.width = `${img.width}px`;
+      canvas.style.height = `${img.height}px`;
+      
+      // 根据设备像素比缩放上下文
+      ctx.scale(dpr, dpr);
+      
+      // 绘制背景图片（使用显示尺寸）
+      ctx.drawImage(img, 0, 0, img.width, img.height);
       
       // 如果有保存的坐标，加载它们
       const savedPoints = localStorage.getItem('polygonPoints');
@@ -72,9 +84,11 @@ export default function Editor() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const dpr = window.devicePixelRatio || 1;
+    
     // 清除画布并重新绘制背景图片
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, 0);
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width / dpr, canvas.height / dpr);
 
     if (points.length > 0) {
       ctx.beginPath();
@@ -189,13 +203,15 @@ export default function Editor() {
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const dpr = window.devicePixelRatio || 1;
+    
+    // 计算点击位置时考虑设备像素比和画布缩放
+    const x = (e.clientX - rect.left) * (canvas.width / (rect.width * dpr));
+    const y = (e.clientY - rect.top) * (canvas.height / (rect.height * dpr));
 
     const newPoints = [...points, {x, y}];
     setPoints(newPoints);
     
-    // 保存坐标到本地存储
     localStorage.setItem('polygonPoints', JSON.stringify(newPoints));
   };
 
