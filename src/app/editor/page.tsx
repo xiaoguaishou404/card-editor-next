@@ -1,6 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+
+interface EditorState {
+  points: Array<{x: number; y: number}>;
+  text: string;
+  fontSize: number;
+  letterSpacing: number;
+  lineHeight: number;
+  textColor: string;
+  textDirection: 'horizontal' | 'vertical';
+}
 
 export default function Editor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -13,7 +24,9 @@ export default function Editor() {
   const [lineHeight, setLineHeight] = useState(1.5);
   const [textColor, setTextColor] = useState('#000000');
   const [textDirection, setTextDirection] = useState<'horizontal' | 'vertical'>('horizontal');
+  const [backgroundImage, setBackgroundImage] = useState<HTMLImageElement | null>(null);
 
+  // 初始化画布和背景图片
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -21,11 +34,32 @@ export default function Editor() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 初始化画布设置
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#333';
-    updateTextStyle(ctx);
+    // 加载背景图片
+    const img = new window.Image();
+    img.src = '/template.png';
+    img.onload = () => {
+      setBackgroundImage(img);
+      // 调整画布大小以适应图片
+      canvas.width = img.width;
+      canvas.height = img.height;
+      // 绘制背景图片
+      ctx.drawImage(img, 0, 0);
+      
+      // 如果有保存的坐标，加载它们
+      const savedPoints = localStorage.getItem('polygonPoints');
+      if (savedPoints) {
+        const parsedPoints = JSON.parse(savedPoints);
+        setPoints(parsedPoints);
+        drawPoints();
+      }
+    };
   }, []);
+
+  // 当背景图片或点发生变化时重新绘制
+  useEffect(() => {
+    if (!backgroundImage) return;
+    drawPoints();
+  }, [backgroundImage, points]);
 
   const updateTextStyle = (ctx: CanvasRenderingContext2D) => {
     ctx.font = `${fontSize}px Arial`;
@@ -34,11 +68,13 @@ export default function Editor() {
 
   const drawPoints = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !backgroundImage) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // 清除画布并重新绘制背景图片
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, 0, 0);
 
     if (points.length > 0) {
       ctx.beginPath();
@@ -52,12 +88,15 @@ export default function Editor() {
         ctx.closePath();
       }
 
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
       ctx.stroke();
 
       // 绘制顶点
       points.forEach(point => {
         ctx.beginPath();
         ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#333';
         ctx.fill();
       });
     }
@@ -149,28 +188,15 @@ export default function Editor() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // 先绘制新点
-    ctx.beginPath();
-    ctx.arc(x, y, 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 如果已经有其他点，绘制连线
-    if (points.length > 0) {
-      ctx.beginPath();
-      ctx.moveTo(points[points.length - 1].x, points[points.length - 1].y);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    }
-
-    // 更新点集合
-    setPoints([...points, {x, y}]);
+    const newPoints = [...points, {x, y}];
+    setPoints(newPoints);
+    
+    // 保存坐标到本地存储
+    localStorage.setItem('polygonPoints', JSON.stringify(newPoints));
   };
 
   const handleComplete = () => {
@@ -187,14 +213,50 @@ export default function Editor() {
 
   const handleClear = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !backgroundImage) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, 0, 0);
     setPoints([]);
     setIsDrawing(false);
     setIsCompleted(false);
+    // 清除保存的坐标
+    localStorage.removeItem('polygonPoints');
+  };
+
+  const handleSave = () => {
+    const data = {
+      points,
+      text,
+      fontSize,
+      letterSpacing,
+      lineHeight,
+      textColor,
+      textDirection
+    };
+    localStorage.setItem('editorState', JSON.stringify(data));
+    alert('保存成功！');
+  };
+
+  const handleLoad = () => {
+    const savedState = localStorage.getItem('editorState');
+    if (savedState) {
+      const data = JSON.parse(savedState);
+      setPoints(data.points);
+      setText(data.text);
+      setFontSize(data.fontSize);
+      setLetterSpacing(data.letterSpacing);
+      setLineHeight(data.lineHeight);
+      setTextColor(data.textColor);
+      setTextDirection(data.textDirection);
+      setIsCompleted(true);
+      drawPoints();
+      setTimeout(() => {
+        fillTextInPolygon();
+      }, 100);
+    }
   };
 
   return (
@@ -213,15 +275,26 @@ export default function Editor() {
         >
           完成绘制
         </button>
+        <button
+          onClick={handleSave}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          保存状态
+        </button>
+        <button
+          onClick={handleLoad}
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+        >
+          加载状态
+        </button>
       </div>
       <div className="flex flex-wrap gap-8">
         <div className="bg-white rounded-lg shadow-md p-4">
           <canvas
             ref={canvasRef}
-            width={600}
-            height={400}
             onClick={handleCanvasClick}
             className="border border-gray-300 cursor-crosshair"
+            style={{ maxWidth: '100%', height: 'auto' }}
           />
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 flex-1">
