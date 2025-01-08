@@ -18,6 +18,7 @@ export default function Editor() {
   const [points, setPoints] = useState<{x: number; y: number}[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isNearFirstPoint, setIsNearFirstPoint] = useState(false);
   const [text, setText] = useState('');
   const [fontSize, setFontSize] = useState(16);
   const [letterSpacing, setLetterSpacing] = useState(2);
@@ -196,6 +197,51 @@ export default function Editor() {
     }
   };
 
+  // 检查点是否靠近第一个点
+  const isNearPoint = (x: number, y: number, targetX: number, targetY: number) => {
+    const distance = Math.sqrt(Math.pow(x - targetX, 2) + Math.pow(y - targetY, 2));
+    return distance < 10; // 10像素的判定范围
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isCompleted || points.length === 0) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const x = (e.clientX - rect.left) * (canvas.width / (rect.width * dpr));
+    const y = (e.clientY - rect.top) * (canvas.height / (rect.height * dpr));
+
+    // 检查是否靠近第一个点
+    const isNear = isNearPoint(x, y, points[0].x, points[0].y);
+    setIsNearFirstPoint(isNear);
+
+    // 实时绘制预览线
+    drawPoints();
+    if (points.length > 0) {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.beginPath();
+      ctx.moveTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 如果靠近第一个点，绘制一个特殊的提示圆圈
+      if (isNear && points.length > 2) {
+        ctx.beginPath();
+        ctx.arc(points[0].x, points[0].y, 8, 0, Math.PI * 2);
+        ctx.strokeStyle = '#4CAF50';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+  };
+
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (isCompleted) return;
 
@@ -204,14 +250,20 @@ export default function Editor() {
 
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    
-    // 计算点击位置时考虑设备像素比和画布缩放
     const x = (e.clientX - rect.left) * (canvas.width / (rect.width * dpr));
     const y = (e.clientY - rect.top) * (canvas.height / (rect.height * dpr));
 
+    // 如果靠近第一个点且已经有至少3个点，则封闭多边形
+    if (points.length >= 3 && isNearFirstPoint) {
+      setIsCompleted(true);
+      setIsDrawing(false);
+      drawPoints();
+      fillTextInPolygon();
+      return;
+    }
+
     const newPoints = [...points, {x, y}];
     setPoints(newPoints);
-    
     localStorage.setItem('polygonPoints', JSON.stringify(newPoints));
   };
 
@@ -309,7 +361,10 @@ export default function Editor() {
           <canvas
             ref={canvasRef}
             onClick={handleCanvasClick}
-            className="border border-gray-300 cursor-crosshair"
+            onMouseMove={handleCanvasMouseMove}
+            className={`border border-gray-300 ${
+              isNearFirstPoint && points.length > 2 ? 'cursor-pointer' : 'cursor-crosshair'
+            }`}
             style={{ maxWidth: '100%', height: 'auto' }}
           />
         </div>
