@@ -53,8 +53,9 @@ export default function Home() {
                 <Image
                   src={creation.imageUrl}
                   alt={creation.title || `Creation ${creation.id}`}
-                  width={500}
-                  height={300}
+                  // 这里后面要根据照片模版的固定尺寸去设置
+                  width={1000}
+                  height={1500}
                   className="w-full h-auto"
                 />
               </div>
