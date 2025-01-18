@@ -13,17 +13,17 @@ interface Creation {
 
 export default function Home() {
   const [creations] = useState<Creation[]>([
-    { id: 1, imageUrl: '/images/portrait.jpg', likes: 8 },
-    { id: 2, imageUrl: '/images/moonlight.jpg', likes: 5 },
-    { id: 3, imageUrl: '/images/building.jpg', likes: 3 },
-    { id: 4, imageUrl: '/images/computer.jpg', likes: 2 },
-    { id: 5, imageUrl: '/images/forest.jpg', likes: 1 },
-    { id: 6, imageUrl: '/images/beach.jpg', likes: 16 },
-    { id: 7, imageUrl: '/images/sports.jpg', likes: 4 },
-    { id: 8, imageUrl: '/images/crown.jpg', likes: 3 },
-    { id: 9, imageUrl: '/images/couple.jpg', likes: 6 },
-    { id: 10, imageUrl: '/images/frame.jpg', likes: 2 },
-    { id: 11, imageUrl: '/images/cyberpunk.jpg', likes: 7 },
+    { id: 1, imageUrl: '/round-balloon.png', likes: 8 },
+    { id: 2, imageUrl: '/round-balloon.png', likes: 5 },
+    { id: 3, imageUrl: '/round-balloon.png', likes: 3 },
+    { id: 4, imageUrl: '/round-balloon.png', likes: 2 },
+    { id: 5, imageUrl: '/round-balloon.png', likes: 1 },
+    { id: 6, imageUrl: '/round-balloon.png', likes: 16 },
+    { id: 7, imageUrl: '/round-balloon.png', likes: 4 },
+    { id: 8, imageUrl: '/round-balloon.png', likes: 3 },
+    { id: 9, imageUrl: '/round-balloon.png', likes: 6 },
+    { id: 10, imageUrl: '/round-balloon.png', likes: 2 },
+    { id: 11, imageUrl: '/round-balloon.png', likes: 7 },
   ]);
 
   return (
