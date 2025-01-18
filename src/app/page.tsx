@@ -9,21 +9,22 @@ interface Creation {
   imageUrl: string;
   likes: number;
   title?: string;
+  height?: number;
 }
 
 export default function Home() {
   const [creations] = useState<Creation[]>([
-    { id: 1, imageUrl: '/round-balloon.png', likes: 8 },
-    { id: 2, imageUrl: '/round-balloon.png', likes: 5 },
-    { id: 3, imageUrl: '/round-balloon.png', likes: 3 },
-    { id: 4, imageUrl: '/round-balloon.png', likes: 2 },
-    { id: 5, imageUrl: '/round-balloon.png', likes: 1 },
-    { id: 6, imageUrl: '/round-balloon.png', likes: 16 },
-    { id: 7, imageUrl: '/round-balloon.png', likes: 4 },
-    { id: 8, imageUrl: '/round-balloon.png', likes: 3 },
-    { id: 9, imageUrl: '/round-balloon.png', likes: 6 },
-    { id: 10, imageUrl: '/round-balloon.png', likes: 2 },
-    { id: 11, imageUrl: '/round-balloon.png', likes: 7 },
+    { id: 1, imageUrl: '/round-balloon.png', likes: 8, height: 200 },
+    { id: 2, imageUrl: '/round-balloon.png', likes: 5, height: 300 },
+    { id: 3, imageUrl: '/round-balloon.png', likes: 3, height: 250 },
+    { id: 4, imageUrl: '/round-balloon.png', likes: 2, height: 280 },
+    { id: 5, imageUrl: '/round-balloon.png', likes: 1, height: 220 },
+    { id: 6, imageUrl: '/round-balloon.png', likes: 16, height: 320 },
+    { id: 7, imageUrl: '/round-balloon.png', likes: 4, height: 240 },
+    { id: 8, imageUrl: '/round-balloon.png', likes: 3, height: 260 },
+    { id: 9, imageUrl: '/round-balloon.png', likes: 6, height: 290 },
+    { id: 10, imageUrl: '/round-balloon.png', likes: 2, height: 270 },
+    { id: 11, imageUrl: '/round-balloon.png', likes: 7, height: 310 },
   ]);
 
   return (
@@ -41,20 +42,20 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* 主内容区 */}
+      {/* 主内容区 - 瀑布流布局 */}
       <div className="ml-16 p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
           {creations.map((creation) => (
             <div
               key={creation.id}
-              className="relative group overflow-hidden rounded-lg shadow-lg bg-white"
+              className="relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white"
             >
-              <div className="aspect-w-1 aspect-h-1">
+              <div className="relative" style={{ height: creation.height }}>
                 <Image
                   src={creation.imageUrl}
                   alt={creation.title || `Creation ${creation.id}`}
                   fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="object-cover"
                 />
               </div>
               <div className="absolute bottom-3 right-3 bg-black/50 px-2 py-1 rounded-full flex items-center space-x-1">
