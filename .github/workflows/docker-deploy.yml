@@ -108,6 +108,12 @@ jobs:
             sudo docker rm -f card-editor-next nginx-proxy || true
             sudo docker network rm card-editor-project_web-network || true
 
+            # 创建 .env 文件
+            echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            NODE_ENV=production" > .env
+
             # 创建 docker-compose.yml
             echo "services:
               nginx:
@@ -130,8 +136,8 @@ jobs:
                 restart: always
                 expose:
                   - 3000
-                environment:
-                  - NODE_ENV=production
+                env_file:
+                  - .env
                 networks:
                   - web-network
 
