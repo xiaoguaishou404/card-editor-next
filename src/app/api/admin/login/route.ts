@@ -29,10 +29,10 @@ export async function POST(request: Request) {
     // 创建响应
     const response = NextResponse.json({ message: '登录成功' });
     
-    // 设置 cookie
+    // 设置 cookie，服务器没有使用https，暂时不设置secure选项
     response.cookies.set('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+    //   secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24, // 24 hours
       path: '/',

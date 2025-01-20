@@ -23,7 +23,7 @@ export default function AdminLogin() {
       });
 
       if (res.ok) {
-        router.push('/admin/dashboard');
+        router.replace('/admin/dashboard');
       } else {
         const data = await res.json();
         setError(data.message || '登录失败');
