@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
-import { cookies } from 'next/headers';
 
 const secretKey = new TextEncoder().encode(
   process.env.JWT_SECRET_KEY || 'your-secret-key-min-32-chars-long!!'
@@ -27,8 +26,11 @@ export async function POST(request: Request) {
       .setExpirationTime('24h')
       .sign(secretKey);
 
+    // 创建响应
+    const response = NextResponse.json({ message: '登录成功' });
+    
     // 设置 cookie
-    cookies().set('admin_token', token, {
+    response.cookies.set('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
       path: '/',
     });
 
-    return NextResponse.json({ message: '登录成功' });
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
