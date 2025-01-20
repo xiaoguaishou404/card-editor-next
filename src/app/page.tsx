@@ -43,28 +43,30 @@ export default function Home() {
 
       {/* 主内容区 - 瀑布流布局 */}
       <div className="ml-16 p-8">
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-6 space-y-6">
-          {creations.map((creation) => (
-            <div
-              key={creation.id}
-              className="relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white mb-6 hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="w-full">
-                <Image
-                  src={creation.imageUrl}
-                  alt={creation.title || `Creation ${creation.id}`}
+        <div className="max-w-[1600px] mx-auto">
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-6 space-y-6">
+            {creations.map((creation) => (
+              <div
+                key={creation.id}
+                className="relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white mb-6 hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="w-full">
+                  <Image
+                    src={creation.imageUrl}
+                    alt={creation.title || `Creation ${creation.id}`}
                   // 这里后面要根据照片模版的固定尺寸去设置
-                  width={1000}
-                  height={1500}
-                  className="w-full h-auto"
-                />
+                    width={1000}
+                    height={1500}
+                    className="w-full h-auto"
+                  />
+                </div>
+                <div className="absolute bottom-3 right-3 bg-black/50 px-2 py-1 rounded-full flex items-center space-x-1">
+                  <Image src="/heart.svg" alt="Likes" width={16} height={16} className="invert" />
+                  <span className="text-white text-sm">{creation.likes}</span>
+                </div>
               </div>
-              <div className="absolute bottom-3 right-3 bg-black/50 px-2 py-1 rounded-full flex items-center space-x-1">
-                <Image src="/heart.svg" alt="Likes" width={16} height={16} className="invert" />
-                <span className="text-white text-sm">{creation.likes}</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
