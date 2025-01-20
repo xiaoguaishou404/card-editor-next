@@ -43,11 +43,11 @@ export default function Home() {
 
       {/* 主内容区 - 瀑布流布局 */}
       <div className="ml-16 p-8">
-        <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-6 space-y-6">
           {creations.map((creation) => (
             <div
               key={creation.id}
-              className="relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white mb-6"
+              className="relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white mb-6 hover:shadow-xl transition-shadow duration-300"
             >
               <div className="w-full">
                 <Image
