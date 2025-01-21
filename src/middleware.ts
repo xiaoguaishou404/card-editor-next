@@ -12,12 +12,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const token = request.cookies.get('admin_token')?.value;
+
+  // 如果已登录且访问/admin，重定向到dashboard
+  if (token && request.nextUrl.pathname === '/admin') {
+    try {
+      await jwtVerify(token, secretKey);
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    } catch (error) {
+      // token无效，删除cookie
+      const response = NextResponse.redirect(new URL('/admin', request.url));
+      response.cookies.delete('admin_token');
+      return response;
+    }
+  }
+
   // 登录页面不需要验证
   if (request.nextUrl.pathname === '/admin') {
     return NextResponse.next();
   }
-
-  const token = request.cookies.get('admin_token')?.value;
 
   if (!token) {
     return NextResponse.redirect(new URL('/admin', request.url));
