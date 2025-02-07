@@ -11,7 +11,7 @@ export async function createTemplate(name: string, imageFile: File) {
     // 保存模版信息到数据库
     const result = await sql`
       INSERT INTO templates (name, image_url, blob_url)
-      VALUES (${name}, ${blob.url}, ${blob.url})
+      VALUES (${name}, ${blob.url}, ${blob.pathname})
       RETURNING id, name, image_url, created_at, updated_at
     `;
 
@@ -57,7 +57,7 @@ export async function getTemplates() {
 export async function getTemplateById(id: number) {
   try {
     const result = await sql`
-      SELECT id, name, image_url, editor_state, created_at, updated_at
+      SELECT id, name, image_url, blob_url, editor_state, created_at, updated_at
       FROM templates
       WHERE id = ${id}
     `;
@@ -78,9 +78,9 @@ export async function deleteTemplate(id: number) {
     }
 
     // 删除 Blob 存储中的图片
-    const blobUrl = new URL(template.blob_url);
-    const pathname = blobUrl.pathname.slice(1); // 移除开头的斜杠
-    await del(pathname);
+    if (template.blob_url) {
+      await del(template.blob_url);
+    }
 
     // 删除数据库记录
     await sql`

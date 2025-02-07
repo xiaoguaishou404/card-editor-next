@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { updateTemplateState, getTemplateById } from '@/db';
+import { updateTemplateState, getTemplateById, deleteTemplate } from '@/db';
 
 // 获取模板详情
 export async function GET(
@@ -56,6 +56,31 @@ export async function PUT(
     console.error('保存模版状态失败:', error);
     return NextResponse.json(
       { error: '保存模版状态失败' },
+      { status: 500 }
+    );
+  }
+}
+
+// 删除模板
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    if (isNaN(Number(id))) {
+      return NextResponse.json(
+        { error: '无效的模版ID' },
+        { status: 400 }
+      );
+    }
+
+    await deleteTemplate(Number(id));
+    return NextResponse.json({ message: '删除成功' });
+  } catch (error) {
+    console.error('删除模版失败:', error);
+    return NextResponse.json(
+      { error: '删除模版失败' },
       { status: 500 }
     );
   }

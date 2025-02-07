@@ -62,6 +62,27 @@ export default function TemplatesPage() {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm('确定要删除这个模版吗？')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/templates/${id}/edit`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        throw new Error('删除失败');
+      }
+
+      setTemplates(templates.filter(template => template.id !== id));
+    } catch (err) {
+      console.error('删除失败:', err);
+      alert('删除失败，请重试');
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -104,23 +125,32 @@ export default function TemplatesPage() {
               key={template.id}
               className="bg-white rounded-lg shadow-md overflow-hidden"
             >
-              <div className="relative aspect-[4/3]">
+              <div className="h-[200px] flex items-center justify-center bg-gray-50">
                 <Image
                   src={template.image_url}
                   alt={template.name}
-                  fill
-                  className="object-cover"
+                  width={200}
+                  height={200}
+                  className="object-contain w-auto h-full"
                 />
               </div>
               <div className="p-4">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-semibold">{template.name}</h3>
-                  <Link
-                    href={`/admin/templates/${template.id}/edit`}
-                    className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors"
-                  >
-                    编辑
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/admin/templates/${template.id}/edit`}
+                      className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors"
+                    >
+                      编辑
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(template.id)}
+                      className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+                    >
+                      删除
+                    </button>
+                  </div>
                 </div>
                 <div className="text-sm text-gray-500">
                   <p>创建时间：{new Date(template.created_at).toLocaleDateString()}</p>
