@@ -48,6 +48,7 @@ export default function TemplateEditor() {
           if (data.editor_state) {
             const state = data.editor_state;
             setPoints(state.points || []);
+            setText(state.text || ''); // 加载保存的文字内容
 
             // 加载预设值
             if (state.presets) {
