@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Creation {
   id: number;
@@ -11,20 +11,57 @@ interface Creation {
   title?: string;
 }
 
+interface Template {
+  id: number;
+  name: string;
+  image_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function Home() {
-  const [creations] = useState<Creation[]>([
-    { id: 1, imageUrl: '/round-balloon.png', likes: 8 },
-    { id: 2, imageUrl: '/template2.png', likes: 5 },
-    { id: 3, imageUrl: '/round-balloon.png', likes: 3 },
-    { id: 4, imageUrl: '/round-balloon.png', likes: 2 },
-    { id: 5, imageUrl: '/template3.png', likes: 1 },
-    { id: 6, imageUrl: '/template2.png', likes: 16 },
-    { id: 7, imageUrl: '/template2.png', likes: 4 },
-    { id: 8, imageUrl: '/round-balloon.png', likes: 3 },
-    { id: 9, imageUrl: '/round-balloon.png', likes: 6 },
-    { id: 10, imageUrl: '/template2.png', likes: 2 },
-    { id: 11, imageUrl: '/template3.png', likes: 7 },
-  ]);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch('/api/admin/templates');
+      if (!res.ok) {
+        throw new Error('获取模版列表失败');
+      }
+      const data = await res.json();
+      setTemplates(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '获取模版列表失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <div className="ml-16 p-8">
+          <div className="text-center">加载中...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <div className="ml-16 p-8">
+          <div className="text-center text-red-500">{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -45,16 +82,15 @@ export default function Home() {
       <div className="ml-16 p-8">
         <div className="max-w-[1600px] mx-auto">
           <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-6 space-y-6">
-            {creations.map((creation) => (
+            {templates.map((template) => (
               <div
-                key={creation.id}
+                key={template.id}
                 className="relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white mb-6 hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="w-full">
                   <Image
-                    src={creation.imageUrl}
-                    alt={creation.title || `Creation ${creation.id}`}
-                  // 这里后面要根据照片模版的固定尺寸去设置
+                    src={template.image_url}
+                    alt={template.name}
                     width={1000}
                     height={1500}
                     className="w-full h-auto"
@@ -62,7 +98,7 @@ export default function Home() {
                 </div>
                 <div className="absolute bottom-3 right-3 bg-black/50 px-2 py-1 rounded-full flex items-center space-x-1">
                   <Image src="/heart.svg" alt="Likes" width={16} height={16} className="invert" />
-                  <span className="text-white text-sm">{creation.likes}</span>
+                  <span className="text-white text-sm">0</span>
                 </div>
               </div>
             ))}
