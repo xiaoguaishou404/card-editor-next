@@ -83,9 +83,10 @@ export default function Home() {
         <div className="max-w-[1600px] mx-auto">
           <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-6 space-y-6">
             {templates.map((template) => (
-              <div
+              <Link
                 key={template.id}
-                className="relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white mb-6 hover:shadow-xl transition-shadow duration-300"
+                href={`/editor/${template.id}`}
+                className="block relative break-inside-avoid overflow-hidden rounded-lg shadow-lg bg-white mb-6 hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="w-full">
                   <Image
@@ -100,7 +101,7 @@ export default function Home() {
                   <Image src="/heart.svg" alt="Likes" width={16} height={16} className="invert" />
                   <span className="text-white text-sm">0</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
