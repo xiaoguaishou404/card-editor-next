@@ -40,6 +40,7 @@ export default function TemplateEditor() {
         
         // 设置背景图片
         const img = new window.Image();
+        img.crossOrigin = 'anonymous';  // 添加跨域支持
         img.src = data.image_url;
         img.onload = () => {
           setBackgroundImage(img);
@@ -257,6 +258,30 @@ export default function TemplateEditor() {
     }
   };
 
+  // 添加导出图片功能
+  const handleExport = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    try {
+      // 将画布内容转换为图片
+      const dataUrl = canvas.toDataURL('image/png');
+      
+      // 创建一个临时的 a 标签用于下载
+      const link = document.createElement('a');
+      link.download = `template-${templateId}.png`; // 设置下载文件名
+      link.href = dataUrl;
+      
+      // 触发下载
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('导出图片失败:', error);
+      alert('导出图片失败，请重试');
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -279,6 +304,12 @@ export default function TemplateEditor() {
             className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
           >
             重置样式
+          </button>
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            导出图片
           </button>
         </div>
       </div>
