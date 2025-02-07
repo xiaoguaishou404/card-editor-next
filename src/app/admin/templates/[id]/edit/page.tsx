@@ -33,6 +33,69 @@ export default function TemplateEditor() {
 
   // 初始化画布和背景图片
   useEffect(() => {
+    const fetchTemplate = async () => {
+      try {
+        const res = await fetch(`/api/admin/templates/${templateId}/edit`);
+        if (!res.ok) {
+          throw new Error('获取模版失败');
+        }
+        const data = await res.json();
+        
+        // 设置背景图片
+        const img = new window.Image();
+        img.src = data.image_url;
+        img.onload = () => {
+          setBackgroundImage(img);
+          
+          // 如果有保存的编辑状态，加载它
+          if (data.editor_state) {
+            const state = data.editor_state;
+            setPoints(state.points);
+            setText(state.text);
+            setFontSize(state.fontSize);
+            setLetterSpacing(state.letterSpacing);
+            setLineHeight(state.lineHeight);
+            setTextColor(state.textColor);
+            setTextDirection(state.textDirection);
+            setIsCompleted(true);
+            setTimeout(() => {
+              drawPoints();
+              fillTextInPolygon();
+            }, 100);
+          }
+        };
+      } catch (error) {
+        console.error('获取模版失败:', error);
+        alert('获取模版失败，请重试');
+      }
+    };
+
+    if (templateId) {
+      fetchTemplate();
+    }
+  }, [templateId]);
+
+  // 当背景图片加载完成后初始化画布
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !backgroundImage) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = backgroundImage.width * dpr;
+    canvas.height = backgroundImage.height * dpr;
+    canvas.style.width = `${backgroundImage.width}px`;
+    canvas.style.height = `${backgroundImage.height}px`;
+    ctx.scale(dpr, dpr);
+    
+    drawPoints();
+  }, [backgroundImage]);
+
+  // 当点或文字状态改变时重新绘制
+  useEffect(() => {
+    if (!backgroundImage) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -40,45 +103,16 @@ export default function TemplateEditor() {
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
-    
-    // 加载背景图片 - 这里需要根据templateId获取正确的图片URL
-    const img = new window.Image();
-    img.src = '/template.png';  // 后续需要改为实际的模版图片URL
-    img.onload = () => {
-      setBackgroundImage(img);
-      
-      canvas.width = img.width * dpr;
-      canvas.height = img.height * dpr;
-      canvas.style.width = `${img.width}px`;
-      canvas.style.height = `${img.height}px`;
-      ctx.scale(dpr, dpr);
-      ctx.drawImage(img, 0, 0, img.width, img.height);
-      
-      // 加载已保存的编辑状态
-      const savedState = localStorage.getItem(`editorState_${templateId}`);
-      if (savedState) {
-        const data = JSON.parse(savedState);
-        setPoints(data.points);
-        setText(data.text);
-        setFontSize(data.fontSize);
-        setLetterSpacing(data.letterSpacing);
-        setLineHeight(data.lineHeight);
-        setTextColor(data.textColor);
-        setTextDirection(data.textDirection);
-        setIsCompleted(true);
-        setTimeout(() => {
-          drawPoints();
-          fillTextInPolygon();
-        }, 100);
-      }
-    };
-  }, [templateId]);
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width / dpr, canvas.height / dpr);
 
-  // 当背景图片或点发生变化时重新绘制
-  useEffect(() => {
-    if (!backgroundImage) return;
-    drawPoints();
-  }, [backgroundImage, points]);
+    if (isCompleted && points.length > 0) {
+      drawPoints();
+      if (text) {
+        fillTextInPolygon();
+      }
+    }
+  }, [backgroundImage, points, isCompleted, text, fontSize, letterSpacing, lineHeight, textColor, textDirection]);
 
   const updateTextStyle = (ctx: CanvasRenderingContext2D) => {
     ctx.font = `${fontSize}px Arial`;
@@ -360,7 +394,6 @@ export default function TemplateEditor() {
     }
 
     const data = {
-      templateId,
       points,
       text,
       fontSize,
@@ -371,15 +404,15 @@ export default function TemplateEditor() {
     };
 
     try {
-      // 保存到本地存储
-      localStorage.setItem(`editorState_${templateId}`, JSON.stringify(data));
-      
-      // 这里后续需要添加API调用，将数据保存到服务器
-      // await fetch(`/api/admin/templates/${templateId}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data)
-      // });
+      const res = await fetch(`/api/admin/templates/${templateId}/edit`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (!res.ok) {
+        throw new Error('保存失败');
+      }
 
       alert('保存成功！');
     } catch (error) {

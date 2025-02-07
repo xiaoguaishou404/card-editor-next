@@ -1,58 +1,82 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 interface Template {
   id: number;
-  imageUrl: string;
   name: string;
-  createdAt: string;
-  updatedAt: string;
+  image_url: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function TemplatesPage() {
-  const [templates, setTemplates] = useState<Template[]>([
-    {
-      id: 1,
-      imageUrl: '/template.png',
-      name: '气球模版',
-      createdAt: '2024-01-10',
-      updatedAt: '2024-01-10'
-    },
-    // 后续会从API获取数据
-  ]);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // 获取模版列表
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch('/api/admin/templates');
+      if (!res.ok) {
+        throw new Error('获取模版列表失败');
+      }
+      const data = await res.json();
+      setTemplates(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '获取模版列表失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 这里后续需要接入实际的上传API
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      // const response = await fetch('/api/admin/templates/upload', {
-      //   method: 'POST',
-      //   body: formData
-      // });
-      // const data = await response.json();
-      
-      // 模拟新增模版
-      const newTemplate: Template = {
-        id: templates.length + 1,
-        imageUrl: URL.createObjectURL(file),
-        name: file.name,
-        createdAt: new Date().toISOString().split('T')[0],
-        updatedAt: new Date().toISOString().split('T')[0]
-      };
+      const res = await fetch('/api/admin/templates', {
+        method: 'POST',
+        body: formData,
+      });
 
-      setTemplates([...templates, newTemplate]);
-    } catch (error) {
-      console.error('上传失败:', error);
+      if (!res.ok) {
+        throw new Error('上传失败');
+      }
+
+      const newTemplate = await res.json();
+      setTemplates([newTemplate, ...templates]);
+    } catch (err) {
+      console.error('上传失败:', err);
+      alert('上传失败，请重试');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="text-center">加载中...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="text-center text-red-500">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -69,38 +93,44 @@ export default function TemplatesPage() {
         </label>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {templates.map((template) => (
-          <div
-            key={template.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden"
-          >
-            <div className="relative aspect-[4/3]">
-              <Image
-                src={template.imageUrl}
-                alt={template.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="p-4">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-semibold">{template.name}</h3>
-                <Link
-                  href={`/admin/templates/${template.id}/edit`}
-                  className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors"
-                >
-                  编辑
-                </Link>
+      {templates.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          暂无模版，请上传
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {templates.map((template) => (
+            <div
+              key={template.id}
+              className="bg-white rounded-lg shadow-md overflow-hidden"
+            >
+              <div className="relative aspect-[4/3]">
+                <Image
+                  src={template.image_url}
+                  alt={template.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <div className="text-sm text-gray-500">
-                <p>创建时间：{template.createdAt}</p>
-                <p>更新时间：{template.updatedAt}</p>
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold">{template.name}</h3>
+                  <Link
+                    href={`/admin/templates/${template.id}/edit`}
+                    className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors"
+                  >
+                    编辑
+                  </Link>
+                </div>
+                <div className="text-sm text-gray-500">
+                  <p>创建时间：{new Date(template.created_at).toLocaleDateString()}</p>
+                  <p>更新时间：{new Date(template.updated_at).toLocaleDateString()}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 } 
