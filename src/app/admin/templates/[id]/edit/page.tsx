@@ -50,13 +50,13 @@ export default function TemplateEditor() {
           // 如果有保存的编辑状态，加载它
           if (data.editor_state) {
             const state = data.editor_state;
-            setPoints(state.points);
-            setText(state.text);
-            setFontSize(state.fontSize);
-            setLetterSpacing(state.letterSpacing);
-            setLineHeight(state.lineHeight);
-            setTextColor(state.textColor);
-            setTextDirection(state.textDirection);
+            setPoints(state.points || []);
+            setText(state.text || '');
+            setFontSize(state.fontSize || 16);
+            setLetterSpacing(state.letterSpacing || 2);
+            setLineHeight(state.lineHeight || 1.5);
+            setTextColor(state.textColor || '#000000');
+            setTextDirection(state.textDirection || 'horizontal');
             setIsCompleted(true);
             setTimeout(() => {
               drawPoints();

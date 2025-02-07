@@ -47,15 +47,15 @@ export default function TemplateEditor() {
           // 如果有保存的编辑状态，加载多边形坐标和预设值
           if (data.editor_state) {
             const state = data.editor_state;
-            setPoints(state.points);
+            setPoints(state.points || []);
 
             // 加载预设值
             if (state.presets) {
-              setFontSize(state.presets.fontSize);
-              setLetterSpacing(state.presets.letterSpacing);
-              setLineHeight(state.presets.lineHeight);
-              setTextColor(state.presets.textColor);
-              setTextDirection(state.presets.textDirection);
+              setFontSize(state.presets.fontSize || 16);
+              setLetterSpacing(state.presets.letterSpacing || 2);
+              setLineHeight(state.presets.lineHeight || 1.5);
+              setTextColor(state.presets.textColor || '#000000');
+              setTextDirection(state.presets.textDirection || 'horizontal');
             }
           }
         };
@@ -244,11 +244,11 @@ export default function TemplateEditor() {
       
       if (data.editor_state?.presets) {
         const { presets } = data.editor_state;
-        setFontSize(presets.fontSize);
-        setLetterSpacing(presets.letterSpacing);
-        setLineHeight(presets.lineHeight);
-        setTextColor(presets.textColor);
-        setTextDirection(presets.textDirection);
+        setFontSize(presets.fontSize || 16);
+        setLetterSpacing(presets.letterSpacing || 2);
+        setLineHeight(presets.lineHeight || 1.5);
+        setTextColor(presets.textColor || '#000000');
+        setTextDirection(presets.textDirection || 'horizontal');
       }
     } catch (error) {
       console.error('重置预设值失败:', error);
