@@ -72,8 +72,11 @@ export default function TemplateEditor() {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = backgroundImage.width * dpr;
     canvas.height = backgroundImage.height * dpr;
-    canvas.style.width = `${backgroundImage.width}px`;
-    canvas.style.height = `${backgroundImage.height}px`;
+    // canvas.style.width = `${backgroundImage.width}px`;
+    // canvas.style.height = `${backgroundImage.height}px`;
+    // canvas.style.width = '832px';
+    canvas.style.height = '800px';
+
     ctx.scale(dpr, dpr);
     
     drawPoints();
@@ -245,7 +248,7 @@ export default function TemplateEditor() {
         <div className="bg-white rounded-lg shadow-md p-4">
           <canvas
             ref={canvasRef}
-            className="border border-gray-300"
+            className=""
             style={{ maxWidth: '100%', height: '100%' }}
           />
         </div>

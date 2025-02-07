@@ -86,8 +86,11 @@ export default function TemplateEditor() {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = backgroundImage.width * dpr;
     canvas.height = backgroundImage.height * dpr;
-    canvas.style.width = `${backgroundImage.width}px`;
-    canvas.style.height = `${backgroundImage.height}px`;
+    // canvas.style.width = `${backgroundImage.width}px`;
+    // canvas.style.height = `${backgroundImage.height}px`;
+    // canvas.style.width = '832px';
+    canvas.style.height = '800px';
+
     ctx.scale(dpr, dpr);
     
     drawPoints();
@@ -461,7 +464,7 @@ export default function TemplateEditor() {
             ref={canvasRef}
             onClick={handleCanvasClick}
             onMouseMove={handleCanvasMouseMove}
-            className={`border border-gray-300 ${
+            className={`${
               isNearFirstPoint && points.length > 2 ? 'cursor-pointer' : 'cursor-crosshair'
             }`}
             style={{ maxWidth: '100%', height: '100%' }}
