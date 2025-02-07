@@ -399,11 +399,14 @@ export default function TemplateEditor() {
     const data = {
       points,
       text,
-      fontSize,
-      letterSpacing,
-      lineHeight,
-      textColor,
-      textDirection
+      // 保存预设值
+      presets: {
+        fontSize,
+        letterSpacing,
+        lineHeight,
+        textColor,
+        textDirection
+      }
     };
 
     try {

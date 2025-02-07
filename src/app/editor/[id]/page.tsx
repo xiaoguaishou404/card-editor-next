@@ -44,10 +44,19 @@ export default function TemplateEditor() {
         img.onload = () => {
           setBackgroundImage(img);
           
-          // 如果有保存的编辑状态，加载多边形坐标
+          // 如果有保存的编辑状态，加载多边形坐标和预设值
           if (data.editor_state) {
             const state = data.editor_state;
             setPoints(state.points);
+
+            // 加载预设值
+            if (state.presets) {
+              setFontSize(state.presets.fontSize);
+              setLetterSpacing(state.presets.letterSpacing);
+              setLineHeight(state.presets.lineHeight);
+              setTextColor(state.presets.textColor);
+              setTextDirection(state.presets.textDirection);
+            }
           }
         };
       } catch (error) {
@@ -224,6 +233,29 @@ export default function TemplateEditor() {
     drawPoints();
   };
 
+  // 添加重置为预设值的功能
+  const handleResetToPresets = async () => {
+    try {
+      const res = await fetch(`/api/admin/templates/${templateId}/edit`);
+      if (!res.ok) {
+        throw new Error('获取预设值失败');
+      }
+      const data = await res.json();
+      
+      if (data.editor_state?.presets) {
+        const { presets } = data.editor_state;
+        setFontSize(presets.fontSize);
+        setLetterSpacing(presets.letterSpacing);
+        setLineHeight(presets.lineHeight);
+        setTextColor(presets.textColor);
+        setTextDirection(presets.textDirection);
+      }
+    } catch (error) {
+      console.error('重置预设值失败:', error);
+      alert('重置预设值失败，请重试');
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -240,6 +272,12 @@ export default function TemplateEditor() {
             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
             清除文字
+          </button>
+          <button
+            onClick={handleResetToPresets}
+            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+          >
+            重置样式
           </button>
         </div>
       </div>
