@@ -135,26 +135,28 @@ export default function TemplatesPage() {
                 />
               </div>
               <div className="p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold">{template.name}</h3>
+                <div className="mb-2">
+                  <h3 className="font-semibold text-lg mb-2 truncate" title={template.name}>
+                    {template.name}
+                  </h3>
                   <div className="flex gap-2">
                     <Link
                       href={`/admin/templates/${template.id}/edit`}
-                      className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors"
+                      className="flex-1 px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors text-center"
                     >
                       编辑
                     </Link>
                     <button
                       onClick={() => handleDelete(template.id)}
-                      className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+                      className="flex-1 px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
                     >
                       删除
                     </button>
                   </div>
                 </div>
-                <div className="text-sm text-gray-500">
-                  <p>创建时间：{new Date(template.created_at).toLocaleDateString()}</p>
-                  <p>更新时间：{new Date(template.updated_at).toLocaleDateString()}</p>
+                <div className="text-sm text-gray-500 space-y-1">
+                  <p className="truncate">创建时间：{new Date(template.created_at).toLocaleDateString()}</p>
+                  <p className="truncate">更新时间：{new Date(template.updated_at).toLocaleDateString()}</p>
                 </div>
               </div>
             </div>
