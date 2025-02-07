@@ -464,7 +464,7 @@ export default function TemplateEditor() {
             className={`border border-gray-300 ${
               isNearFirstPoint && points.length > 2 ? 'cursor-pointer' : 'cursor-crosshair'
             }`}
-            style={{ maxWidth: '100%', height: 'auto' }}
+            style={{ maxWidth: '100%', height: '100%' }}
           />
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 flex-1">

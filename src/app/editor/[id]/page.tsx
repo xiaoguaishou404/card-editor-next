@@ -246,7 +246,7 @@ export default function TemplateEditor() {
           <canvas
             ref={canvasRef}
             className="border border-gray-300"
-            style={{ maxWidth: '100%', height: 'auto' }}
+            style={{ maxWidth: '100%', height: '100%' }}
           />
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 flex-1">
