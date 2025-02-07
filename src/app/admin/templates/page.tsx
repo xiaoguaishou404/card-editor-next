@@ -131,6 +131,7 @@ export default function TemplatesPage() {
                   alt={template.name}
                   width={200}
                   height={200}
+                  unoptimized
                   className="object-contain w-auto h-full"
                 />
               </div>
