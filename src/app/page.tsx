@@ -94,6 +94,7 @@ export default function Home() {
                     alt={template.name}
                     width={1000}
                     height={1500}
+                    unoptimized
                     className="w-full h-auto"
                   />
                 </div>
